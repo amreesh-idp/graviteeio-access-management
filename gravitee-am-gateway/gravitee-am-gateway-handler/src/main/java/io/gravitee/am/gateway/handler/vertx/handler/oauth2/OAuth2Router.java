@@ -23,6 +23,7 @@ import io.gravitee.am.gateway.handler.oauth2.introspection.IntrospectionService;
 import io.gravitee.am.gateway.handler.oauth2.revocation.RevocationTokenService;
 import io.gravitee.am.gateway.handler.oauth2.scope.ScopeService;
 import io.gravitee.am.gateway.handler.oauth2.token.TokenService;
+import io.gravitee.am.gateway.handler.oidc.flow.Flow;
 import io.gravitee.am.gateway.handler.vertx.auth.handler.ClientBasicAuthHandler;
 import io.gravitee.am.gateway.handler.vertx.auth.handler.ClientCredentialsAuthHandler;
 import io.gravitee.am.gateway.handler.vertx.auth.handler.RedirectAuthHandler;
@@ -57,6 +58,9 @@ public class OAuth2Router {
 
     @Autowired
     private TokenGranter tokenGranter;
+
+    @Autowired
+    private Flow flow;
 
     @Autowired
     private ClientService clientService;
@@ -106,8 +110,8 @@ public class OAuth2Router {
         final AuthorizationRequestParseHandler authorizationRequestParseHandler = AuthorizationRequestParseHandler.create(domain);
 
         // Bind OAuth2 endpoints
-        Handler<RoutingContext> authorizeEndpoint = new AuthorizationEndpointHandler(authorizationCodeService, tokenGranter, clientService, approvalService, domain);
-        Handler<RoutingContext> authorizeApprovalEndpoint = new AuthorizationApprovalEndpointHandler(authorizationCodeService, tokenGranter, approvalService, clientService);
+        Handler<RoutingContext> authorizeEndpoint = new AuthorizationEndpointHandler(flow, domain);
+        Handler<RoutingContext> authorizeApprovalEndpoint = new AuthorizationApprovalEndpointHandler(approvalService);
         Handler<RoutingContext> tokenEndpoint = new TokenEndpointHandler(tokenGranter);
         Handler<RoutingContext> userApprovalEndpoint = new UserApprovalEndpointHandler(clientService, scopeService, thymeleafTemplateEngine);
 
